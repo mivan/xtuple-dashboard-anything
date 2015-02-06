@@ -11,15 +11,14 @@ body {
 .panel-info>.panel-heading {
   padding-top: 5px;
   padding-bottom: 5px;
-  color: blue;
+  color: #666666;
   background-color: white;
   border-bottom: 0px;
 }
 
 .chart div {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Open Sans",Helvetica Neue,Helvetica, Arial, sans-serif;
   font-size: 14px;
-  background-color: #149c82;
   text-align: right;
   padding: 5px;
   margin: 4px;
