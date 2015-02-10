@@ -33,6 +33,9 @@ var C3Chart = React.createClass({
           columns: [],
           type : this.props.chartType
         },
+        color: {
+          pattern: ['#0177ff', '#aaaaaa', '#173095', '#e8e8e8', '#42c2fd', '#ff6600',]
+        },
         axis: {
           y: {
             label: { // ADD
