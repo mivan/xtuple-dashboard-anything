@@ -39,14 +39,12 @@ var ChartElement = React.createClass({
   },
 
   componentDidMount: function () {
-    var that = this;
-
-    this.fetchSavedDefinition(function (err, result) {
+    this.fetchSavedDefinition((err, result) => {
       if (err) {
         console.log("Error fetching saved query", err);
         return;
       }
-      that.setState({definition: result.definition});
+      this.setState({definition: result.definition});
     });
   },
 
@@ -56,25 +54,24 @@ var ChartElement = React.createClass({
     some nice defaults
   */
   fetchSavedDefinition: function (callback) {
-    var that = this;
 
     $.ajax({
-      url: '/' + org + '/browser-api/v1/services/user-preference/get-preference',
+      url: `/${org}/browser-api/v1/services/user-preference/get-preference`,
       type: "POST",
       dataType: "json",
       data: {
         attributes: [
-          "DashboardAnythingQuery" + this.props.position
+          `DashboardAnythingQuery${this.props.position}`
         ]
       },
-      success: function (data) {
-        var result = data.data.result.length ?
+      success: (data) => {
+        let result = data.data.result.length ?
           JSON.parse(data.data.result[0].userpref_value) :
-          defaultDefinitions[that.props.position];
+          defaultDefinitions[this.props.position];
         callback(null, {definition: result});
       },
-      error: function (err) {
-        var result = defaultDefinitions[that.props.position];
+      error: (err) => {
+        let result = defaultDefinitions[this.props.position];
         callback(null, {definition: result});
       }
     });
@@ -114,7 +111,7 @@ var ChartElement = React.createClass({
 
         {
           this.state.definition.description ||
-          ((this.state.definition.recordType || '') + " by " + (this.state.definition.groupBy || ''))
+          `${this.state.definition.recordType || ''} by ${this.state.definition.groupBy || ''}`
         }
         </div>
         <div className="panel-body">
@@ -162,7 +159,7 @@ var ChartElement = React.createClass({
     component's state
   */
   setDefinition: function (definitionAttr) {
-    var definition = _.extend({}, this.state.definition, definitionAttr);
+    let definition = _.extend({}, this.state.definition, definitionAttr);
     if (!definition.groupBy || !definition.totalBy || !definition.recordType) {
       // ensure that we wipe out the chart if the user has borked the query
       this.setState({data: []});
@@ -172,7 +169,7 @@ var ChartElement = React.createClass({
 
   // XXX big and hairy. break down into smaller pieces
   fetchData: function () {
-    var definition = this.state.definition,
+    let definition = this.state.definition,
       query = _.omit(definition, ["chartType", "description"]);
 
     if (!definition.groupBy ||
@@ -190,18 +187,15 @@ var ChartElement = React.createClass({
     }
     this.state.previousQuery = _.clone(query);
 
-    var path = this.props.schema.resources[definition.recordType].methods.get.path;
+    let path = this.props.schema.resources[definition.recordType].methods.get.path;
 
-    var that = this,
-      url = "/" + org + "/browser-api/v1/" + path.substring(0, path.lastIndexOf("/")),
+    let url = `/${org}/browser-api/v1/${path.substring(0, path.lastIndexOf("/"))}`,
       filter = {};
 
-    _.times(query.filterByArray.length, function (i) {
-      var filterValue;
-
+    _.times(query.filterByArray.length, (i) => {
       if (query.filterByArray[i] && query.filterByValueArray[i]) {
-        filterValue = parseInputValue(query.filterByValueArray[i]);
-        filter["query[" + query.filterByArray[i] + "][" + filterValue.operator + "]"] =
+        let filterValue = parseInputValue(query.filterByValueArray[i]);
+        filter[`query[${query.filterByArray[i]}][${filterValue.operator}]`] =
           filterValue.value;
       }
     });
@@ -211,9 +205,9 @@ var ChartElement = React.createClass({
       url: url,
       data: _.extend({}, filter, {count: true}),
       dataType: "json",
-      success: function (countData) {
-        var rowCount = countData.data.data[0].count;
-        that.setState({rowCount: rowCount});
+      success: (countData) => {
+        let rowCount = countData.data.data[0].count;
+        this.setState({rowCount});
         if (rowCount > ROW_LIMIT) {
           return;
         }
@@ -221,11 +215,11 @@ var ChartElement = React.createClass({
           url: url,
           data: _.extend({}, filter, {rowlimit: ROW_LIMIT}),
           dataType: "json",
-          success: function (data) {
-            that.groupChart(data.data.data, query);
-          }.bind(this)
+          success: (data) => {
+            this.groupChart(data.data.data, query);
+          }
         });
-      }.bind(this)
+      }
     });
   },
 
@@ -234,7 +228,7 @@ var ChartElement = React.createClass({
     Group the data intelligently before we set the state.
   */
   groupChart: function (data, options) {
-    var groupedData;
+    let groupedData;
     if (data && data.length > 0 && _.isObject(data[0][options.groupBy])) {
       // prevent "[object Object]" displaying onscreen
       groupedData = _.groupBy(data, function (datum) {
@@ -247,7 +241,7 @@ var ChartElement = React.createClass({
     } else {
       groupedData = _.groupBy(data, options.groupBy);
     }
-    var totalledData = _.map(groupedData, function (dataArray, key) {
+    let totalledData = _.map(groupedData, (dataArray, key) => {
       return {
         key: key,
         total: _.reduce(dataArray, function (memo, value) {
@@ -267,12 +261,12 @@ var ChartElement = React.createClass({
   */
   saveDefinition: function (definition) {
     $.ajax({
-      url: '/' + org + '/browser-api/v1/services/user-preference/commit-preference',
+      url: `/${org}/browser-api/v1/services/user-preference/commit-preference`,
       type: "POST",
       dataType: "json",
       data: {
         attributes: [
-          "DashboardAnythingQuery" + this.props.position,
+          `DashboardAnythingQuery${this.props.position}`,
           JSON.stringify(definition)
         ]
       },

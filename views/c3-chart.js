@@ -51,7 +51,7 @@ var C3Chart = React.createClass({
   },
 
   update: function (el, state) {
-    var data = _.map(state.data, function (datum) {
+    let data = _.map(state.data, datum => {
       return [datum.key, datum.total];
     });
     this._chart.load({
@@ -61,7 +61,7 @@ var C3Chart = React.createClass({
   },
 
   componentDidMount: function () {
-    var el = this.getDOMNode();
+    let el = this.getDOMNode();
     this.create(el, {
       width: '100%',
       height: '300px'
@@ -69,7 +69,7 @@ var C3Chart = React.createClass({
   },
 
   componentDidUpdate: function () {
-    var el = this.getDOMNode();
+    let el = this.getDOMNode();
     this.update(el, this.getChartData());
   },
 
